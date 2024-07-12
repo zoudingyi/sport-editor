@@ -1,6 +1,7 @@
 import { loginByPassword, getAccessToken, pushBandData } from "./api.js";
 import { isEmpty } from "./common.js";
 import * as log from "./log.js";
+import dayjs from "dayjs";
 
 export async function run(config) {
   if (isEmpty(config.app_token) || isEmpty(config.user_id)) {
@@ -11,8 +12,9 @@ export async function run(config) {
     config.app_token = app_token;
     config.user_id = user_id;
   }
-
-  const step = getRamdomStep(config.step_size);
+  const isPM = dayjs().hour() > 12;
+  log.info(`是否下午: ${isPM}`);
+  const step = getRamdomStep(config.step_size) * (isPM ? 2: 1);
   await pushBandData(step, config.user_id, config.app_token);
 }
 
