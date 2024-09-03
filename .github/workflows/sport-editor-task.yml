@@ -6,7 +6,7 @@ name: sport-editor-task
 on:
   workflow_dispatch: # 手动触发
   schedule: # 计划任务触发 (UTC时区 H+8)
-    - cron: "30 1,10 * * 1,6" 
+    - cron: "30 1,10 * * 1,2,3,4,5,6" 
 
 jobs:
   run-sport-editor:
