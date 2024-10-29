@@ -1,9 +1,11 @@
-import { loginByPassword, getAccessToken, pushBandData } from "./api.js";
+import { loginByPassword, getAccessToken, pushBandData, isWorkday } from "./api.js";
 import { isEmpty } from "./common.js";
 import * as log from "./log.js";
 import dayjs from "dayjs";
 
 export async function run(config) {
+  const workday = await isWorkday();
+  if (!workday) return;
   if (isEmpty(config.app_token) || isEmpty(config.user_id)) {
     log.warn("未获取到APP_TOKEN或USER_ID 将使用账号密码方式运行");
     const code = await loginByPassword(config.username, config.password);
@@ -12,10 +14,10 @@ export async function run(config) {
     config.app_token = app_token;
     config.user_id = user_id;
   }
-  const isPM = dayjs().hour() > 12;
-  log.info(`是否下午: ${isPM}`);
-  const step = getRamdomStep(config.step_size) * (isPM ? 2: 1);
-  await pushBandData(step, config.user_id, config.app_token);
+  const hour = dayjs().hour();
+  const progress = hour < 11 ? 0.3 : hour < 14 ? 0.6 : 1; // 判断当前时期
+  const finalStep = getRamdomStep(config.step_size) * progress;
+  await pushBandData(finalStep, config.user_id, config.app_token);
 }
 
 function getRamdomStep(step_size = DEFAULT_STEP_SIZE) {

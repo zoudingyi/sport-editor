@@ -90,12 +90,12 @@ export async function getAccessToken(code) {
     device_id: "2C8B4939-0CCD-4E94-8CBA-CB8EA6E613A1",
     device_model: "phone",
     grant_type: "access_token",
-    third_name: 'email', // huami_phone
+    third_name: "email", // huami_phone
   });
 
   try {
     const res = await axios.post("https://account.huami.com/v2/client/login", data);
-    
+
     const token_info = res.data.token_info;
     log.info(`获取AccessToken成功 token: ${token_info.login_token}`);
     return token_info;
@@ -141,4 +141,19 @@ async function buildDataJson(step) {
   data_json = data_json.replace(find_date.exec(data_json)[1], time);
   data_json = data_json.replace(find_step.exec(data_json)[1], step);
   return data_json;
+}
+
+export async function isWorkday() {
+  try {
+    const res = await axios.post(`https://date.appworlds.cn/work`);
+    const { code } = res.data;
+    if (code === 200) {
+      const { data } = res.data;
+      return data.work;
+    }
+    return false;
+  } catch (e) {
+    log.error("获取日期失败");
+    throw e;
+  }
 }
