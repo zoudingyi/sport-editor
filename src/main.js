@@ -1,11 +1,11 @@
-import { loginByPassword, getAccessToken, pushBandData, isWorkday } from "./api.js";
+import { loginByPassword, getAccessToken, pushBandData, isHoliday } from "./api.js";
 import { isEmpty } from "./common.js";
 import * as log from "./log.js";
 import dayjs from "dayjs";
 
 export async function run(config) {
-  const workday = await isWorkday();
-  if (!workday) return;
+  const holiday = await isHoliday();
+  if (holiday) return;
   if (isEmpty(config.app_token) || isEmpty(config.user_id)) {
     log.warn("未获取到APP_TOKEN或USER_ID 将使用账号密码方式运行");
     const code = await loginByPassword(config.username, config.password);

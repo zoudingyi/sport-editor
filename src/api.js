@@ -143,15 +143,18 @@ async function buildDataJson(step) {
   return data_json;
 }
 
-export async function isWorkday() {
+export async function isHoliday() {
   try {
-    const res = await axios.post(`https://date.appworlds.cn/work`);
-    const { code } = res.data;
-    if (code === 200) {
-      const { data } = res.data;
-      return data.work;
-    }
-    return false;
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString('en-GB', {
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' // 使用 'numeric' 来获取四位数的年份
+    });
+
+    const res = await axios.get(`https://api.jiejiariapi.com/v1/is_holiday?date=${formattedDate}`);
+    return res.data.is_holiday
+
   } catch (e) {
     log.error("获取日期失败");
     throw e;
