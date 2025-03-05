@@ -143,18 +143,36 @@ async function buildDataJson(step) {
   return data_json;
 }
 
-export async function isHoliday() {
+// 判断不了周末 只能判断节假日
+export async function isHoliday(date) {
   try {
-    const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleDateString('en-GB', {
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric' // 使用 'numeric' 来获取四位数的年份
+    // 05/03/2025
+    const formattedDate = date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric", // 使用 'numeric' 来获取四位数的年份
     });
 
     const res = await axios.get(`https://api.jiejiariapi.com/v1/is_holiday?date=${formattedDate}`);
-    return res.data.is_holiday
+    return res.data.is_holiday;
+  } catch (e) {
+    log.error("获取日期失败");
+    throw e;
+  }
+}
 
+export async function isWorkday(date) {
+  try {
+    // 2025-05-03
+    const formattedDate = date.toLocaleDateString("en-CA", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
+    const res = await axios.get(`https://api.jiejiariapi.com/v1/workdays/2025`);
+    log.info(`Date:${formattedDate}`);
+    return Object.hasOwn(res.data, formattedDate);
   } catch (e) {
     log.error("获取日期失败");
     throw e;
